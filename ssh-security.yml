@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- hosts: 127.0.0.1
+  connection: local
   gather_facts: false
   vars:
     ssh_port: 8090
@@ -17,7 +18,7 @@
         line: "PermitRootLogin no"
       notify: "Restart sshd"
   handlers:
-    - name: Restart SSH service
+    - name: Restart sshd
       service:
         name: sshd
         state: restarted
