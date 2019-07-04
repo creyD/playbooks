@@ -1,0 +1,71 @@
+---
+# Installing Django on Apache2 following this guide: https://www.digitalocean.com/community/tutorials/how-to-serve-django-applications-with-apache-and-mod_wsgi-on-ubuntu-14-04
+# Expects that you have a release version (git tag) in your repo
+# Expects that you have a requirements.txt in /repo/{{ requirements_path }}/requirements.txt
+# Expects that this is the only virtualhost on this machine
+# Expects that you already created the django structure in your Git repo
+
+- hosts: all
+  gather_facts: false
+  vars:
+    repo_path: https://github.com/creyD/playbooks
+    repo_release: 1.0
+    user_name: django
+    requirements_path: config
+    app_path: src
+    app_name: my_app
+  tasks:
+    - name: Adding {{ user_name }} as user
+      user:
+        name: {{ user_name }}
+        generate_ssh_key: yes
+        ssh_key_bits: 2048
+        ssh_key_file: .ssh/id_rsa
+
+    - name: Cloning source code from {{ repo_path }}
+      - git:
+        repo: {{ repo_path }}
+        dest: /home/{{ user_name }}/
+        version: {{ repo_release }}
+
+    - name: Installing Webserver and Python
+      apt:
+        name: "python3-pip apache2 libapache2-mod-wsgi-py3"
+        update_cache: yes
+
+    - name: Installing custom requirements
+      pip: 
+        requirements: "/home/{{ user_name }}/{{ requirements_path }}/requirements.txt"
+        virtualenv: "/home/{{ user_name }}/venv"
+        virtualenv_python: "python3.7.3"
+    
+    - name: Making Migrations
+      - command: "{{ item }}"
+        with_items:
+        - source /home/{{ user_name }}/venv/bin/activate
+        - python3 /home/{{ user_name }}/{{ app_path }}/manage.py migrate
+
+    - name: Configuring Apache2 Webserver
+      copy:
+        content: "<VirtualHost *:80>Alias /static /home/{{ user_name }}/{{ app_path }}/static<Directory /home/{{ user_name }}/{{ app_path }}/static>Require all granted</Directory><Directory /home/{{ user_name }}/{{ app_path }}/{{ app_name }}><Files wsgi.py>Require all granted</Files></Directory>WSGIDaemonProcess django_project python-path=/home/{{ user_name }}/{{ app_path }} python-home=/home/{{ user_name }}/venv WSGIProcessGroup django_project WSGIScriptAlias / /home/{{ user_name }}/{{ app_path }}/{{ app_name }}/wsgi.py</VirtualHost>"
+        dest: "/etc/apache2/sites-available/000-default.conf"
+      notify: "Restart Apache"
+
+    - name: Adjusting file permissions for database
+      file:
+        path: "/home/{{ user_name }}/{{ app_path }}/db.sqlite3"
+        owner: www-data
+        group: www-data
+        mode: '664'
+
+    - name: Transfering ownership of folder
+      file:
+        path: "/home/{{ user_name }}/{{ app_path }}/"
+        owner: www-data
+        group: www-data
+
+  handlers:
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted

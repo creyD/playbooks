@@ -8,16 +8,21 @@
         generate_ssh_key: yes
         ssh_key_bits: 2048
         ssh_key_file: .ssh/id_rsa
+
     - name: Download TeamSpeak
       get_url:
         url: https://files.teamspeak-services.com/releases/server/3.9.1/teamspeak3-server_linux_amd64-3.9.1.tar.bz2
         dest: /home/ts3/
+
     - name: Extract downloaded folder
       unarchive:
         src: /home/ts3/teamspeak3-server_linux_amd64-3.9.1.tar.bz2
         dest: /home/ts3
+
     - name: Add TeamSpeak as a service
+
     - name: Start the TeamSpeak server
+
   handlers:
     - name: Start Teamspeak
       service:

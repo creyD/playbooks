@@ -10,6 +10,7 @@
         regexp: "^Port"
         line: "Port {{ ssh_port }}"
       notify: "Restart sshd"
+
     - name: Disabling root login
       lineinfile:
         dest: "/etc/ssh/sshd_config"
