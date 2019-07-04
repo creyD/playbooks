@@ -1,6 +1,5 @@
 ---
-- hosts: 127.0.0.1
-  connection: local
+- hosts: all
   gather_facts: false
   vars:
     ssh_port: 8090
