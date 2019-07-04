@@ -1,0 +1,23 @@
+---
+- hosts: all
+  gather_facts: false
+  vars:
+    ssh_port: 8090
+  tasks:
+    - name: Setting custom SSH port
+      lineinfile:
+        dest: "/etc/ssh/sshd_config"
+        regexp: "^Port"
+        line: "Port {{ ssh_port }}"
+      notify: "Restart sshd"
+    - name: Disabling root login
+      lineinfile:
+        dest: "/etc/ssh/sshd_config"
+        regexp: "^PermitRootLogin"
+        line: "PermitRootLogin no"
+      notify: "Restart sshd"
+  handlers:
+    - name: Restart SSH service
+      service:
+        name: sshd
+        state: restarted
