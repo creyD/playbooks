@@ -1,0 +1,25 @@
+# Should update and upgrade all your APT packages
+# Most of the tasks are documented (and basically stolen from) here: https://docs.ansible.com/ansible/latest/modules/apt_module.html
+- hosts: all
+  gather_facts: false
+  tasks:
+  - name: Updating APT cache
+    apt:
+      update_cache: yes
+
+  - name: Upgrade all packages to the latest version...
+    apt:
+      name: "*"
+      state: latest
+
+  - name: Update all packages to the latest version...
+    apt:
+      upgrade: dist
+
+  - name: Remove unused packages from the cache...
+    apt:
+      autoclean: yes
+
+  - name: Remove dependencies that are no longer required...
+    apt:
+      autoremove: yes

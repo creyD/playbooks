@@ -7,6 +7,7 @@
 
 - hosts: all
   gather_facts: false
+
   vars:
     repo_path: https://github.com/creyD/playbooks
     repo_release: 1.0
@@ -14,6 +15,7 @@
     requirements_path: config
     app_path: src
     app_name: my_app
+
   tasks:
     - name: Adding {{ user_name }} as user
       user:
