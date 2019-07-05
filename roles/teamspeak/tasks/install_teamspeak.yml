@@ -1,0 +1,72 @@
+---
+
+- hosts: all
+  gather_facts: false
+  tasks:
+
+    - name: ensure teamspeak3-server is stopped
+      service:
+        name: teamspeak3-server
+        state: stopped
+      tags:
+        - install_teamspeak
+
+    - name: Adding TeamSpeak User
+      user:
+        name: "{{ teamspeak.user }}"
+        comment: "{{ teamspeak.comment }}"
+        shell: "{{ teamspeak.shell }}"
+        generate_ssh_key: yes
+        ssh_key_bits: 2048
+        ssh_key_file: .ssh/id_rsa
+      tags:
+        - install_teamspeak
+
+    - name: Download TeamSpeak
+      get_url:
+        url: "https://files.teamspeak-services.com/releases/server/{{ teamspeak.version }}/teamspeak3-server_linux_amd64-{{ teamspeak.version }}.tar.bz2"
+        dest: "{{ teamspeak.home }}teamspeak3-server_linux_amd64-{{ teamspeak.version }}.tar.bz2"
+        owner: "{{ teamspeak.user }}"
+        group: "{{ teamspeak.user }}"
+      tags:
+        - install_teamspeak
+
+    - name: Create TeamSpeak Server directory
+      file:
+        path: "{{ teamspeak.home }}teamspeak3-server_linux_amd64-{{ teamspeak.version }}"
+        state: directory
+        owner: "{{ teamspeak.user }}"
+        group: "{{ teamspeak.user }}"
+      register: mkdir
+
+    - name: Checking for a currently installed TeamSpeak 3 Server with user data
+      stat:
+        path: "{{ teamspeak.home }}{{teamspeak.symlink }}/teamspeak3-server_linux_amd64/files"
+      register: userdata
+      when: mkdir.changed
+
+    - include: ts3update.yml
+      when: userdata.stat is defined and userdata.stat.exists == True
+
+    - name: Extract downloaded folder
+      unarchive:
+        remote_src: yes
+        src: "{{ teamspeak.home }}/teamspeak3-server_linux_amd64-{{ teamspeak.version }}.tar.bz2"
+        dest: "{{ teamspeak.home }}/teamspeak3-server_linux_amd64-{{ teamspeak.version }}/"
+        owner: "{{ teamspeak.user }}"
+        group: "{{ teamspeak.user }}"
+      when: mkdir.changed
+      tags:
+        - install_teamspeak
+
+    - name: "Install : Create/Update symlink to TeamSpeak {{ teamspeak.version }} Server"
+      file:
+        src: "{{ teamspeak.home }}teamspeak3-server_linux_amd64-{{ teamspeak.version }}"
+        dest: "{{ teamspeak.home }}{{ teamspeak.symlink }}"
+        state: link
+        owner: "{{ teamspeak.user }}"
+        group: "{{ teamspeak.user }}"
+      notify:
+        - Restart_TeamSpeak_3_Server
+
+#TODO maybe systemd.yml needs to be included here and not before install_teamspeak.yml gets executet

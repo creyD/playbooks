@@ -1,0 +1,20 @@
+---
+
+- name: Add TeamSpeak as a service
+  template:
+    src: teamspeak3-server.service.j2
+    dest: "{{ systemd_service_file_path }}/teamspeak3-server.service"
+    mode: 0644
+    owner: root
+    group: root
+  notify:
+    - Reload_systemd
+  tags:
+    - install_teamspeak
+    - systemd_ts
+
+- name: ensure teamspeak is stopped - it will be started at the deployment
+  service:
+      name: ctu2-adapter.service
+      state: stopped
+      enabled: false

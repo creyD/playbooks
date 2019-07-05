@@ -1,0 +1,12 @@
+---
+
+teamspeak:
+  user: "ts3"
+  comment: "Teamspeak 3 user"
+  shell: "/usr/sbin/nologin"
+  home: "/home/ts3/"
+  version: "3.9.1"
+  symlink: "current"
+  keep: 3
+
+systemd_service_file_path: "INSERT_SYSTEMD_PATH_HERE"
