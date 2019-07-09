@@ -1,13 +1,11 @@
 ---
 - hosts: all
   gather_facts: false
+  become: yes
   tasks:
     - name: Adding TeamSpeak User
       user:
         name: ts3
-        generate_ssh_key: yes
-        ssh_key_bits: 2048
-        ssh_key_file: .ssh/id_rsa
 
     - name: Download TeamSpeak
       get_url:
