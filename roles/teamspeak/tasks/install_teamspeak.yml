@@ -22,15 +22,6 @@
       tags:
         - install_teamspeak
 
-    - name: Download TeamSpeak
-      get_url:
-        url: "https://files.teamspeak-services.com/releases/server/{{ teamspeak.version }}/teamspeak3-server_linux_amd64-{{ teamspeak.version }}.tar.bz2"
-        dest: "{{ teamspeak.home }}teamspeak3-server_linux_amd64-{{ teamspeak.version }}.tar.bz2"
-        owner: "{{ teamspeak.user }}"
-        group: "{{ teamspeak.user }}"
-      tags:
-        - install_teamspeak
-
     - name: Create TeamSpeak Server directory
       file:
         path: "{{ teamspeak.home }}teamspeak3-server_linux_amd64-{{ teamspeak.version }}"
@@ -48,10 +39,10 @@
     - include: ts3update.yml
       when: userdata.stat is defined and userdata.stat.exists == True
 
-    - name: Extract downloaded folder
+    - name: Download and extract folder
       unarchive:
         remote_src: yes
-        src: "{{ teamspeak.home }}/teamspeak3-server_linux_amd64-{{ teamspeak.version }}.tar.bz2"
+        src: "https://files.teamspeak-services.com/releases/server/{{ teamspeak.version }}/teamspeak3-server_linux_amd64-{{ teamspeak.version }}.tar.bz2"
         dest: "{{ teamspeak.home }}/teamspeak3-server_linux_amd64-{{ teamspeak.version }}/"
         owner: "{{ teamspeak.user }}"
         group: "{{ teamspeak.user }}"
