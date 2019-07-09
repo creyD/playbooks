@@ -7,15 +7,11 @@
       user:
         name: ts3
 
-    - name: Download TeamSpeak
-      get_url:
-        url: https://files.teamspeak-services.com/releases/server/3.9.1/teamspeak3-server_linux_amd64-3.9.1.tar.bz2
-        dest: /home/ts3/
-
     - name: Extract downloaded folder
       unarchive:
-        src: /home/ts3/teamspeak3-server_linux_amd64-3.9.1.tar.bz2
+        src: https://files.teamspeak-services.com/releases/server/3.9.1/teamspeak3-server_linux_amd64-3.9.1.tar.bz2
         dest: /home/ts3
+        remote_src: yes
 
     - name: Add TeamSpeak as a service
 
