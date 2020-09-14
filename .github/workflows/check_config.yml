@@ -1,0 +1,17 @@
+name: Ansible Linting
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  cleanup_tasks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Cloning the repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - name: ansible-lint
+        uses: ansible/ansible-lint-action@v4.1.0.post0
